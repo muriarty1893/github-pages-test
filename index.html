@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoE Item Overview</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ff6600;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        #poe-logo {
+            width: 500px;
+            margin-bottom: 20px;
+        }
+
+        #item-form label {
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+
+        #item-form input[type="text"] {
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            width: 200px;
+        }
+
+        .custom-login-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: transparent;
+            border: 2px solid #4A2E27;
+            border-radius: 5px;
+            color: #FFF;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px #362823;
+            text-shadow: 1px 1px 2px #000;
+            background-image: url('C:/Users/Murat Eker/Desktop/project-folder/login.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .custom-login-button:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px #4A2E27;
+        }
+
+        .custom-login-button:active {
+            box-shadow: 0 2px #4A2E27;
+            transform: translateY(2px);
+        }
+
+        .result {
+            margin-top: 20px;
+            border: 1px solid #555;
+            padding: 20px;
+            background-color: #2e2e2e;
+            display: block;
+            width: auto;
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 600px;
+        }
+
+        .result h2 {
+            color: #ff6600;
+        }
+
+        .result p {
+            margin: 5px 0;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        /* Yeni eklenen CSS */
+        .side-images {
+            display: flex;
+            align-items: center;
+        }
+
+        .side-images img {
+            width: 100px;
+            height: auto;
+            margin: 0 10px;
+        }
+        /* Mevcut CSS kodu */
+
+        #item-form {
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        /* Yeni eklenen CSS */
+        .side-images {
+            display: flex;
+            justify-content: center; /* Bu, tüm içeriği yatayda ortalayacak */
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .side-images img {
+            width: 100px;
+            height: auto;
+            margin: 0 10px; /* Kenarlık boşlukları */
+        }
+
+        #item-form {
+            margin-bottom: 20px;
+            display: flex; /* Flexbox ile yatayda ortalayacağız */
+            flex-direction: column;
+            align-items: center; /* İçeriği ortalayacak */
+        }
+
+        #item-form label,
+        #item-form input,
+        .custom-login-button {
+            margin: 5px 0; /* İçeriğin dikeyde düzenlenmesi için boşluk */
+        }   
+
+    </style>
+</head>
+
+<body>
+    <img id="poe-logo" src="https://logos-world.net/wp-content/uploads/2021/10/Path-of-Exile-Logo.png" alt="PoE Logo">
+    <h1>PoE Item Price Fetcher</h1>
+    <div class="side-images">
+        <img src="https://kboosting.com/img/14839/c/mageblood-500x500.png" alt="Mageblood">
+        <img src="https://www.shopofexile.com/image/thumbnails/items/Buy_Ashes_of_the_Stars_for_PoE-106603-380x380.png" alt="Ashes of the Stars">
+        <form id="item-form">
+            <label for="item-name">Enter Item Name: </label>
+            <input type="text" id="item-name" name="item-name" required>
+            <button type="submit" class="custom-login-button">LOG IN</button>
+        </form>
+        <img src="https://www.poewiki.net/images/1/19/Aegis_Aurora_inventory_icon.png" alt="Aegis Aurora">
+        <img src="https://www.poewiki.net/images/e/ee/Headhunter_inventory_icon.png" alt="Headhunter">
+    </div>
+    <div id="result" class="result"></div>
+    <footer>
+        by Murat Eker, <br>
+        email: murateker9166@gmail.com, <br>
+        Note: This product is in no way affiliated with or endorsed by Grinding Gear Games, poe.ninja and poe.watch.
+    </footer>
+    <script>
+        document.getElementById('item-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const itemName = document.getElementById('item-name').value;
+
+            fetch(`/fetch-item-price?iname=${itemName}`)
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById('result');
+                    if (data.success) {
+                        const modifiers = data.data.explicitModifiers.map(mod => mod.text || JSON.stringify(mod)).join('</li><li>');
+                        resultDiv.innerHTML = `
+                            <h2>Item: ${data.data.name}</h2>
+                            <p><strong>Divine Value:</strong> ${data.data.divineValue}</p>
+                            <p><strong>Explicit Modifiers:</strong></p>
+                            <ul>
+                                <li>${modifiers}</li>
+                            </ul>
+                            <img src="${data.data.icon}" alt="${data.data.name}">
+                        `;
+                    } else {
+                        resultDiv.innerHTML = `<p>${data.message}</p>`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+                });
+        });
+    </script>
+</body>
+
+</html>
